@@ -25,7 +25,7 @@ public:
     bool add_vertex(pair<KeyType, ValueType> node) {
         // Buscar el vertex
         if (vertices.find(node.first) == end(vertices)) {
-            vertices[node.first] = size(vertices);
+            vertices.try_emplace(node.first, pair{size(vertices), node.second});
             adjacents.emplace_back();
             return true;
         }
@@ -34,8 +34,8 @@ public:
     void add_edge(KeyType key_vertex1, KeyType key_vertex2, WeightType weight) {
         auto vx1 = vertices[key_vertex1].first;
         auto vx2 = vertices[key_vertex2].first;
-        adjacents[vx1].push_front(vx2, weight);
-        adjacents[vx2].push_front(vx1, weight);
+        adjacents[vx1].emplace_front(vx2, weight);
+        adjacents[vx2].emplace_front(vx1, weight);
     }
 };
 
