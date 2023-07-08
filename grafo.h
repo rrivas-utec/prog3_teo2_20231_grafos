@@ -20,6 +20,7 @@ class grafo {
     using VertexType = size_t;
     using AdjacentType = pair<VertexType, WeightType>;
     using ItemType = pair<VertexType, ValueType>;
+    using EdgeType = tuple<VertexType, VertexType, WeightType>;
     // Lista de Vertices
     unordered_map<KeyType, ItemType> vertices;
     // Vertices Adyacentes
@@ -105,6 +106,36 @@ public:
             else {
                 fun(get_key(vx_top));
                 s.pop();
+            }
+        }
+    }
+
+    template<typename UnaryFunction>
+    void prim(KeyType key, UnaryFunction fun) {
+        auto edge_compare = [](auto e1, auto e2) {
+            return get<2>(e1) > get<2>(e2);
+        };
+        priority_queue<EdgeType, vector<EdgeType>, decltype(edge_compare)> pq;
+        unordered_set<VertexType> visited;
+        auto is_visited= [&visited](VertexType vertex) {
+            return visited.find(vertex) != end(visited);
+        };
+        // Agregar al pq las arista adyacentes al vertex de key
+        auto fvx = vertices[key].first;
+        for (auto [fva, fw]: adjacent_vertices[fvx]) {
+            pq.push({fvx, fva, fw});
+        }
+        visited.insert(fvx);
+        // Bucle principal
+        while (!pq.empty()) {
+            auto [vx, va, w] = pq.top();
+            pq.pop();
+            if (!is_visited(va)) {
+                fun(get_key(vx), get_key(va), w);
+                visited.insert(va);
+                for(auto [vaa, waa]: adjacent_vertices[va]) {
+                    pq.push({va, vaa, waa});
+                }
             }
         }
     }
